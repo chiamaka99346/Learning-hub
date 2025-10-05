@@ -2,27 +2,11 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'EC2_HOST', defaultValue: 'ec2-1-2-3-4.compute-1.amazonaws.com', description: 'EC2 public DNS or IP')
+        string(name: 'EC2_HOST', defaultValue: 'string(name: 'EC2_HOST', defaultValue: '3.95.120.44', description: 'EC2 public DNS or IP')
         string(name: 'EC2_USER', defaultValue: 'ec2-user', description: 'SSH user for EC2 (e.g., ec2-user, ubuntu)')
         string(name: 'APP_PORT', defaultValue: '8080', description: 'Host port to expose the app on EC2')
         string(name: 'IMAGE_TAG', defaultValue: '', description: 'Optional image tag to deploy (defaults to build number)')
         choice(name: 'DEPLOY_ENV', choices: ['prod', 'staging', 'none'], description: 'Where to deploy after build')
-        booleanParam(name: 'USE_TERRAFORM_OUTPUT', defaultValue: true, description: 'Resolve EC2 host from terraform/outputs')
-        booleanParam(name: 'APPLY_TERRAFORM', defaultValue: false, description: 'Apply Terraform to provision/update EC2')
-        string(name: 'AWS_REGION', defaultValue: 'us-east-1', description: 'AWS region for Terraform')
-        string(name: 'AMI_ID', defaultValue: 'ami-0c101f26f147fa7fd', description: 'AMI ID for EC2')
-        string(name: 'INSTANCE_TYPE', defaultValue: 't3.micro', description: 'EC2 instance type')
-        string(name: 'KEY_NAME', defaultValue: '', description: 'Existing AWS key pair name for SSH')
-        string(name: 'SSH_CIDR', defaultValue: '0.0.0.0/0', description: 'CIDR allowed to SSH (22)')
-        string(name: 'JENKINS_HTTP_PORT', defaultValue: '8080', description: 'Jenkins UI port')
-        string(name: 'JENKINS_AGENT_PORT', defaultValue: '50000', description: 'Jenkins agent port')
-        string(name: 'GITHUB_REPO_URL', defaultValue: 'https://github.com/your-username/your-repo.git', description: 'Repo to clone on EC2')
-        string(name: 'GITHUB_REPO_BRANCH', defaultValue: 'main', description: 'Branch to checkout')
-        string(name: 'REPO_CLONE_PATH', defaultValue: '/home/ec2-user/app', description: 'Path to clone repo on EC2')
-        booleanParam(name: 'GIT_USE_SSH', defaultValue: false, description: 'Use SSH for git clone (requires key)')
-        text(name: 'GIT_SSH_PRIVATE_KEY', defaultValue: '', description: 'SSH private key for git (deploy key)')
-        string(name: 'GIT_USER_NAME', defaultValue: 'ec2-user', description: 'git config user.name')
-        string(name: 'GIT_USER_EMAIL', defaultValue: 'ec2-user@local', description: 'git config user.email')
     }
     
     environment {
@@ -271,13 +255,19 @@ pipeline {
     }
     
     post {
-        always {
-            echo 'Pipeline completed!'
-            script {
-                sh '''
-                    docker stop test-${BUILD_NUMBER} perf-${BUILD_NUMBER} || true
-                    docker rm test-${BUILD_NUMBER} perf-${BUILD_NUMBER} || true
-                '''
+    always {
+        echo 'Pipeline completed!'
+        script {
+            sh '''
+                docker stop test-${BUILD_NUMBER} || true
+                docker rm test-${BUILD_NUMBER} || true
+                docker stop perf-${BUILD_NUMBER} || true
+                docker rm perf-${BUILD_NUMBER} || true
+            '''
+        }
+    }
+}
+
             }
         }
         
